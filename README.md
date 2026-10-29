@@ -12,43 +12,59 @@ A small command-line bank account simulator written in TypeScript.
 
 The idea is to keep the balance private inside an `Account` class so it can only change through methods like `deposit()` and `withdraw()`, not by editing it directly.
 
-## Layout
+## Workspace
 
-| File                                                 | What it holds                                              |
-| ---------------------------------------------------- | ---------------------------------------------------------- |
-| [`src/lib/types.ts`](src/lib/types.ts)               | `AccountDetails` and the `Transaction` union               |
-| [`src/lib/transactions.ts`](src/lib/transactions.ts) | `describe()`, which handles every kind of transaction      |
-| [`src/lib/account.ts`](src/lib/account.ts)           | The `Account` class with its private balance and totals    |
-| [`src/lib/load.ts`](src/lib/load.ts)                 | The type guards that check a saved bank before it is used  |
-| [`src/data.ts`](src/data.ts)                         | The accounts                                               |
-| [`src/saved.ts`](src/saved.ts)                       | The saved bank text, plus broken saves to test the guard   |
-| [`src/index.ts`](src/index.ts)                       | Loads the bank, replays its history and prints the reports |
+This repository is a [pnpm workspace](https://pnpm.io/workspaces) with two packages:
 
-Run it straight from the source with `node src/index.ts` (Node 22.18 or newer).
+| Package | Folder                           | What it holds                                                     |
+| ------- | -------------------------------- | ----------------------------------------------------------------- |
+| `bank`  | [`features/bank`](features/bank) | Account types, transactions, the `Account` class and the guards   |
+| `cli`   | [`apps/cli`](apps/cli)           | The script that loads a saved bank and prints the account reports |
+
+`cli` depends on `bank` through `"bank": "workspace:*"`, so pnpm links the local package instead of downloading it. The shared tool versions (TypeScript, ESLint, Prettier) are pinned once in the `catalog` of [`pnpm-workspace.yaml`](pnpm-workspace.yaml) and read by both packages with `"catalog:"`.
+
+[Nx](https://nx.dev) runs tasks across the packages. Because `lint` depends on `^lint` in [`nx.json`](nx.json), `bank` is always checked before `cli`. Each package has its own GitHub workflow in [`.github/workflows`](.github/workflows), and it only runs when files that package depends on change.
+
+### Files
+
+| File                                                                     | What it holds                                              |
+| ------------------------------------------------------------------------ | ---------------------------------------------------------- |
+| [`features/bank/src/types.ts`](features/bank/src/types.ts)               | `AccountDetails` and the `Transaction` union               |
+| [`features/bank/src/transactions.ts`](features/bank/src/transactions.ts) | `describe()`, which handles every kind of transaction      |
+| [`features/bank/src/account.ts`](features/bank/src/account.ts)           | The `Account` class with its private balance and totals    |
+| [`features/bank/src/load.ts`](features/bank/src/load.ts)                 | The type guards that check a saved bank before it is used  |
+| [`features/bank/src/index.ts`](features/bank/src/index.ts)               | What the `bank` package exports                            |
+| [`apps/cli/src/data.ts`](apps/cli/src/data.ts)                           | The accounts                                               |
+| [`apps/cli/src/saved.ts`](apps/cli/src/saved.ts)                         | The saved bank text, plus broken saves to test the guard   |
+| [`apps/cli/src/index.ts`](apps/cli/src/index.ts)                         | Loads the bank, replays its history and prints the reports |
 
 ## Setup
 
-You need Node.js (v20 or newer).
+You need Node.js 22.18 or newer (it runs the TypeScript files directly) and pnpm 12.
 
 ```bash
-npm install
+pnpm install
 ```
 
 ## Scripts
 
-| Command                | What it does                         |
-| ---------------------- | ------------------------------------ |
-| `npm run dev`          | Run the project with tsx (no build)  |
-| `npm run build`        | Compile TypeScript into `dist/`      |
-| `npm start`            | Run the compiled code                |
-| `npm run typecheck`    | Check types without building         |
-| `npm run lint`         | Run ESLint                           |
-| `npm run lint:fix`     | Run ESLint and fix what it can       |
-| `npm run format`       | Format everything with Prettier      |
-| `npm run format:check` | Check formatting without changing it |
+Run these from the root of the repository.
+
+| Command               | What it does                                                           |
+| --------------------- | ---------------------------------------------------------------------- |
+| `pnpm start`          | Run the `cli` package                                                  |
+| `pnpm lint`           | Type check, ESLint and Prettier for every package, in dependency order |
+| `pnpm lint-typecheck` | Type check every package                                               |
+| `pnpm lint-eslint`    | Run ESLint in every package                                            |
+| `pnpm lint-prettier`  | Check formatting in every package                                      |
+| `pnpm format`         | Format every package with Prettier                                     |
+| `pnpm nx graph`       | Show how the packages depend on each other                             |
 
 ## Tools
 
+- **pnpm** workspaces with a catalog for shared versions
+- **Nx** to run tasks across packages, with caching
 - **TypeScript** with `strict` mode on
 - **ESLint** with the recommended JS and TypeScript rules
 - **Prettier** for formatting (no semicolons, double quotes, 100 character lines)
+- **GitHub Actions** with path filters, so each workflow only runs when its files change

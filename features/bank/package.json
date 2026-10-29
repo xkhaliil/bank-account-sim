@@ -1,0 +1,24 @@
+{
+  "name": "bank",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Accounts, transactions and saved bank loading",
+  "type": "module",
+  "exports": "./src/index.ts",
+  "scripts": {
+    "lint": "pnpm run \"/^lint-.*/\"",
+    "lint-typecheck": "tsc",
+    "lint-eslint": "eslint .",
+    "lint-prettier": "prettier --check .",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "@eslint/js": "catalog:",
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "eslint-config-prettier": "catalog:",
+    "prettier": "catalog:",
+    "typescript": "catalog:",
+    "typescript-eslint": "catalog:"
+  }
+}

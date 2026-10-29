@@ -1,27 +1,24 @@
 {
   "name": "bank-account-sim",
   "version": "0.1.0",
+  "private": true,
   "description": "A simple bank account simulator written in TypeScript",
-  "type": "module",
-  "main": "dist/index.js",
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "^12.16.0",
+      "onFail": "download"
+    }
+  },
   "scripts": {
-    "build": "tsc",
-    "start": "node dist/index.js",
-    "dev": "tsx src/index.ts",
-    "typecheck": "tsc --noEmit",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "start": "pnpm --filter cli start",
+    "lint": "nx run-many -t lint",
+    "lint-typecheck": "nx run-many -t lint-typecheck",
+    "lint-eslint": "nx run-many -t lint-eslint",
+    "lint-prettier": "nx run-many -t lint-prettier",
+    "format": "nx run-many -t format"
   },
   "devDependencies": {
-    "@eslint/js": "^9.0.0",
-    "@types/node": "^22.0.0",
-    "eslint": "^9.0.0",
-    "eslint-config-prettier": "^10.0.0",
-    "prettier": "^3.0.0",
-    "tsx": "^4.0.0",
-    "typescript": "^5.0.0",
-    "typescript-eslint": "^8.0.0"
+    "nx": "24.0.2"
   }
 }

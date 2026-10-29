@@ -1,7 +1,5 @@
-import { Account } from "./lib/account.ts"
-import { loadSavedBank } from "./lib/load.ts"
-import { describe, money } from "./lib/transactions.ts"
-import { type Transaction } from "./lib/types.ts"
+import { Account, describe, loadSavedBank, money, type Transaction } from "bank"
+
 import { savedBank, testSaves } from "./saved.ts"
 
 const bank = loadSavedBank(savedBank)
