@@ -12,6 +12,20 @@ A small command-line bank account simulator written in TypeScript.
 
 The idea is to keep the balance private inside an `Account` class so it can only change through methods like `deposit()` and `withdraw()`, not by editing it directly.
 
+## Layout
+
+| File                                                 | What it holds                                              |
+| ---------------------------------------------------- | ---------------------------------------------------------- |
+| [`src/lib/types.ts`](src/lib/types.ts)               | `AccountDetails` and the `Transaction` union               |
+| [`src/lib/transactions.ts`](src/lib/transactions.ts) | `describe()`, which handles every kind of transaction      |
+| [`src/lib/account.ts`](src/lib/account.ts)           | The `Account` class with its private balance and totals    |
+| [`src/lib/load.ts`](src/lib/load.ts)                 | The type guards that check a saved bank before it is used  |
+| [`src/data.ts`](src/data.ts)                         | The accounts                                               |
+| [`src/saved.ts`](src/saved.ts)                       | The saved bank text, plus broken saves to test the guard   |
+| [`src/index.ts`](src/index.ts)                       | Loads the bank, replays its history and prints the reports |
+
+Run it straight from the source with `node src/index.ts` (Node 22.18 or newer).
+
 ## Setup
 
 You need Node.js (v20 or newer).
