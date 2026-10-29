@@ -1,4 +1,4 @@
-import { type AccountDetails } from "./lib/types.ts"
+import { type AccountDetails } from "bank"
 
 export const accounts: AccountDetails[] = [
   { id: "CHK-001", owners: ["Amira"], openingBalance: 100, isFrozen: false },

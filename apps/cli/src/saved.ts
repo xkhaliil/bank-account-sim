@@ -1,5 +1,5 @@
 import { accounts } from "./data.ts"
-import { type Transaction } from "./lib/types.ts"
+import { type Transaction } from "bank"
 
 const history: Transaction[] = [
   { kind: "deposit", account: "CHK-001", amount: 250 },
