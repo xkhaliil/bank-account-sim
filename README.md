@@ -32,7 +32,7 @@ The code in `bank` is split into folders called modlets. Each folder has an `ind
 | Modlet                                                 | Default export      | Named exports                                 | Private to the folder                  |
 | ------------------------------------------------------ | ------------------- | --------------------------------------------- | -------------------------------------- |
 | [`bank/accounts`](features/bank/src/accounts/index.ts) | the `Account` class | `describe()`, `AccountDetails`, `Transaction` | `money()`, `TransactionKind`           |
-| [`bank/saved`](features/bank/src/saved/index.ts)       | `loadSavedBank()`   |                                               | `isSavedBank()` and the smaller guards |
+| [`bank/saved`](features/bank/src/saved/index.ts)       | `loadBank()`        | `SavedBank`                                   | `isSavedBank()` and the smaller guards |
 
 ### Files
 
@@ -42,10 +42,20 @@ The code in `bank` is split into folders called modlets. Each folder has an `ind
 | [`features/bank/src/accounts/transactions.ts`](features/bank/src/accounts/transactions.ts) | `describe()`, which handles every kind of transaction      |
 | [`features/bank/src/accounts/account.ts`](features/bank/src/accounts/account.ts)           | The `Account` class with its private balance and totals    |
 | [`features/bank/src/saved/guards.ts`](features/bank/src/saved/guards.ts)                   | The type guards that check a saved bank before it is used  |
-| [`features/bank/src/saved/load.ts`](features/bank/src/saved/load.ts)                       | `loadSavedBank()`, which parses saved text and guards it   |
-| [`apps/cli/src/data.ts`](apps/cli/src/data.ts)                                             | The accounts                                               |
-| [`apps/cli/src/saved.ts`](apps/cli/src/saved.ts)                                           | The saved bank text, plus broken saves to test the guard   |
+| [`features/bank/src/saved/load.ts`](features/bank/src/saved/load.ts)                       | `loadBank()`, which reads a saved bank file and guards it  |
+| [`features/bank/src/saved/demo.json`](features/bank/src/saved/demo.json)                   | The demo bank: its accounts and their saved history        |
 | [`apps/cli/src/index.ts`](apps/cli/src/index.ts)                                           | Loads the bank, replays its history and prints the reports |
+
+### Loading a saved bank
+
+`loadBank(name)` reads `<name>.json` from its own folder (the path is built from `import.meta.dirname`, not from where you run the program), checks it with the `isSavedBank()` guard, and returns a promise of the saved bank. Each failure has its own message, and the program prints it and exits with code 1:
+
+| Problem                      | Message                                                                   |
+| ---------------------------- | ------------------------------------------------------------------------- |
+| The file is missing          | `There is no saved bank called "demo"`                                    |
+| The file can't be read       | `Could not read the saved bank "demo"`                                    |
+| The file is not JSON         | `The saved bank "demo" is not valid JSON`                                 |
+| The JSON has the wrong shape | `The saved bank "demo" is missing a piece or has the wrong kind of piece` |
 
 ## Setup
 

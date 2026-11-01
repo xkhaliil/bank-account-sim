@@ -1,9 +1,15 @@
 import Account, { describe as describeTransaction, type Transaction } from "bank/accounts"
-import loadSavedBank from "bank/saved"
+import loadBank, { type SavedBank } from "bank/saved"
 
-import { savedBank, testSaves } from "./saved.ts"
+let bank: SavedBank
 
-const bank = loadSavedBank(savedBank)
+try {
+  bank = await loadBank("demo")
+} catch (error) {
+  console.error(error instanceof Error ? error.message : error)
+  process.exit(1)
+}
+
 const accounts = bank.accounts.map((details) => new Account(details))
 
 function find(id: string): Account {
@@ -75,9 +81,4 @@ console.log()
 for (const account of accounts) {
   console.log(account.report())
   console.log()
-}
-
-console.log("Other saves")
-for (const save of testSaves) {
-  attempt(save.label, () => loadSavedBank(save.text))
 }
