@@ -1,4 +1,4 @@
-import { type AccountDetails, type Transaction } from "./types.ts"
+import { type AccountDetails, type Transaction } from "../accounts/index.ts"
 
 export interface SavedBank {
   accounts: AccountDetails[]
@@ -6,23 +6,7 @@ export interface SavedBank {
   savedAt?: string
 }
 
-export function loadSavedBank(saved: string): SavedBank {
-  let value: unknown
-
-  try {
-    value = JSON.parse(saved)
-  } catch {
-    throw new Error("The saved bank is not valid text")
-  }
-
-  if (!isSavedBank(value)) {
-    throw new Error("The saved bank is missing a piece or has the wrong kind of piece")
-  }
-
-  return value
-}
-
-function isSavedBank(value: unknown): value is SavedBank {
+export function isSavedBank(value: unknown): value is SavedBank {
   if (typeof value !== "object" || value === null) {
     return false
   }

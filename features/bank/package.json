@@ -4,7 +4,9 @@
   "private": true,
   "description": "Accounts, transactions and saved bank loading",
   "type": "module",
-  "exports": "./src/index.ts",
+  "exports": {
+    "./*": "./src/*/index.ts"
+  },
   "scripts": {
     "lint": "pnpm run \"/^lint-.*/\"",
     "lint-typecheck": "tsc",

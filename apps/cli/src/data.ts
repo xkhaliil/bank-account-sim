@@ -1,4 +1,4 @@
-import { type AccountDetails } from "bank"
+import { type AccountDetails } from "bank/accounts"
 
 export const accounts: AccountDetails[] = [
   { id: "CHK-001", owners: ["Amira"], openingBalance: 100, isFrozen: false },

@@ -1,7 +1,7 @@
 import { describe, money } from "./transactions.ts"
 import { type AccountDetails, type Transaction, type TransactionKind } from "./types.ts"
 
-export class Account {
+export default class Account {
   public readonly id: string
   private owners: string[]
   private frozen: boolean
