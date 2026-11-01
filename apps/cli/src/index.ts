@@ -1,84 +1,41 @@
-import Account, { describe as describeTransaction, type Transaction } from "bank/accounts"
-import loadBank, { type SavedBank } from "bank/saved"
+import { InvalidArgumentError, program } from "commander"
 
-let bank: SavedBank
+import { report, withdraw } from "./commands/index.ts"
+
+function parseAmount(value: string): number {
+  const amount = Number(value)
+
+  if (!Number.isFinite(amount) || amount <= 0) {
+    throw new InvalidArgumentError("The amount must be a number above zero.")
+  }
+
+  return amount
+}
+
+program.name("bank").description("Simulate bank accounts from a saved bank file")
+
+program
+  .command("report")
+  .description("Show the balance, totals and history of an account")
+  .argument("[account]", "the account to show, asked for when left out")
+  .option("-b, --bank <name>", "the saved bank to load", "demo")
+  .action(report)
+
+program
+  .command("withdraw")
+  .description("Try a withdrawal and show the account afterwards (nothing is saved)")
+  .argument("<account>", "the account to take the money from")
+  .argument("<amount>", "how much to take out", parseAmount)
+  .option("-b, --bank <name>", "the saved bank to load", "demo")
+  .action(withdraw)
 
 try {
-  bank = await loadBank("demo")
+  await program.parseAsync()
 } catch (error) {
-  console.error(error instanceof Error ? error.message : error)
-  process.exit(1)
-}
-
-const accounts = bank.accounts.map((details) => new Account(details))
-
-function find(id: string): Account {
-  const account = accounts.find((account) => account.id === id)
-
-  if (account === undefined) {
-    throw new Error(`There is no account ${id}`)
+  if (error instanceof Error && error.name === "ExitPromptError") {
+    process.exitCode = 130
+  } else {
+    console.error(error instanceof Error ? error.message : error)
+    process.exitCode = 1
   }
-
-  return account
-}
-
-function replay(transaction: Transaction): void {
-  if (transaction.kind === "deposit") {
-    find(transaction.account).deposit(transaction.amount)
-    return
-  }
-
-  if (transaction.kind === "withdrawal") {
-    find(transaction.account).withdraw(transaction.amount)
-    return
-  }
-
-  if (transaction.kind === "transfer") {
-    find(transaction.from).transfer(transaction.amount, find(transaction.to))
-    return
-  }
-
-  throw new Error("Unknown kind.")
-}
-
-function attempt(label: string, action: () => void): void {
-  try {
-    action()
-    console.log(`  ${label}: ok`)
-  } catch (error) {
-    if (error instanceof Error) {
-      console.log(`  ${label}: ${error.message}`)
-    }
-  }
-}
-
-console.log(`Bank saved at ${bank.savedAt ?? "an unknown time"}`)
-console.log()
-
-console.log("Accounts")
-for (const details of bank.accounts) {
-  const owners = details.owners.join(" and ")
-  const status = details.isFrozen ? " (frozen)" : ""
-
-  console.log(`  ${details.id} belongs to ${owners}${status}`)
-}
-console.log()
-
-console.log("Saved history")
-for (const transaction of bank.history) {
-  replay(transaction)
-  console.log(`  ${describeTransaction(transaction)}`)
-}
-console.log()
-
-console.log("New transactions")
-attempt("Withdraw 1000 from CHK-001", () => find("CHK-001").withdraw(1000))
-attempt("Deposit 5 into OLD-003", () => find("OLD-003").deposit(5))
-attempt("Deposit -20 into CHK-001", () => find("CHK-001").deposit(-20))
-attempt("Transfer 75 from SAV-002 to CHK-001", () => find("SAV-002").transfer(75, find("CHK-001")))
-console.log()
-
-for (const account of accounts) {
-  console.log(account.report())
-  console.log()
 }

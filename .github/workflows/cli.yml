@@ -21,4 +21,5 @@ jobs:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       - run: pnpm nx run cli:lint
-      - run: pnpm start
+      - run: pnpm start report CHK-001
+      - run: pnpm start withdraw CHK-001 50

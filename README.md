@@ -16,10 +16,10 @@ The idea is to keep the balance private inside an `Account` class so it can only
 
 This repository is a [pnpm workspace](https://pnpm.io/workspaces) with two packages:
 
-| Package | Folder                           | What it holds                                                     |
-| ------- | -------------------------------- | ----------------------------------------------------------------- |
-| `bank`  | [`features/bank`](features/bank) | Account types, transactions, the `Account` class and the guards   |
-| `cli`   | [`apps/cli`](apps/cli)           | The script that loads a saved bank and prints the account reports |
+| Package | Folder                           | What it holds                                                   |
+| ------- | -------------------------------- | --------------------------------------------------------------- |
+| `bank`  | [`features/bank`](features/bank) | Account types, transactions, the `Account` class and the guards |
+| `cli`   | [`apps/cli`](apps/cli)           | The `bank` command-line tool, built with Commander and Inquirer |
 
 `cli` depends on `bank` through `"bank": "workspace:*"`, so pnpm links the local package instead of downloading it. The shared tool versions (TypeScript, ESLint, Prettier) are pinned once in the `catalog` of [`pnpm-workspace.yaml`](pnpm-workspace.yaml) and read by both packages with `"catalog:"`.
 
@@ -32,7 +32,7 @@ The code in `bank` is split into folders called modlets. Each folder has an `ind
 | Modlet                                                 | Default export      | Named exports                                 | Private to the folder                  |
 | ------------------------------------------------------ | ------------------- | --------------------------------------------- | -------------------------------------- |
 | [`bank/accounts`](features/bank/src/accounts/index.ts) | the `Account` class | `describe()`, `AccountDetails`, `Transaction` | `money()`, `TransactionKind`           |
-| [`bank/saved`](features/bank/src/saved/index.ts)       | `loadBank()`        | `SavedBank`                                   | `isSavedBank()` and the smaller guards |
+| [`bank/saved`](features/bank/src/saved/index.ts)       | `loadBank()`        |                                               | `isSavedBank()` and the smaller guards |
 
 ### Files
 
@@ -44,7 +44,10 @@ The code in `bank` is split into folders called modlets. Each folder has an `ind
 | [`features/bank/src/saved/guards.ts`](features/bank/src/saved/guards.ts)                   | The type guards that check a saved bank before it is used  |
 | [`features/bank/src/saved/load.ts`](features/bank/src/saved/load.ts)                       | `loadBank()`, which reads a saved bank file and guards it  |
 | [`features/bank/src/saved/demo.json`](features/bank/src/saved/demo.json)                   | The demo bank: its accounts and their saved history        |
-| [`apps/cli/src/index.ts`](apps/cli/src/index.ts)                                           | Loads the bank, replays its history and prints the reports |
+| [`apps/cli/src/index.ts`](apps/cli/src/index.ts)                                           | The Commander program: its commands, arguments and options |
+| [`apps/cli/src/commands/report.ts`](apps/cli/src/commands/report.ts)                       | `report`, which asks for the account when it is left out   |
+| [`apps/cli/src/commands/withdraw.ts`](apps/cli/src/commands/withdraw.ts)                   | `withdraw`, which tries a withdrawal on a copy of the bank |
+| [`apps/cli/src/commands/open.ts`](apps/cli/src/commands/open.ts)                           | Opens a saved bank and replays its history                 |
 
 ### Loading a saved bank
 
@@ -56,6 +59,27 @@ The code in `bank` is split into folders called modlets. Each folder has an `ind
 | The file can't be read       | `Could not read the saved bank "demo"`                                    |
 | The file is not JSON         | `The saved bank "demo" is not valid JSON`                                 |
 | The JSON has the wrong shape | `The saved bank "demo" is missing a piece or has the wrong kind of piece` |
+
+## Usage
+
+```text
+$ pnpm start --help
+Usage: bank [options] [command]
+
+Commands:
+  report [options] [account]             Show the balance, totals and history of an account
+  withdraw [options] <account> <amount>  Try a withdrawal and show the account afterwards (nothing is saved)
+```
+
+| Command                                 | What happens                                                   |
+| --------------------------------------- | -------------------------------------------------------------- |
+| `pnpm start report CHK-001`             | Prints the report for `CHK-001`                                |
+| `pnpm start report`                     | Asks which account to show, then prints its report             |
+| `pnpm start withdraw CHK-001 50`        | Takes 50 out of `CHK-001` and prints the report (not saved)    |
+| `pnpm start withdraw CHK-001 1000`      | Prints why the withdrawal is blocked and exits with code 1     |
+| `pnpm start report CHK-001 --bank nope` | Prints `There is no saved bank called "nope"` and exits with 1 |
+
+A value given on the command line is never asked for again. Pressing Ctrl+C at a prompt ends the program quietly with exit code 130.
 
 ## Setup
 
@@ -69,15 +93,15 @@ pnpm install
 
 Run these from the root of the repository.
 
-| Command               | What it does                                                           |
-| --------------------- | ---------------------------------------------------------------------- |
-| `pnpm start`          | Run the `cli` package                                                  |
-| `pnpm lint`           | Type check, ESLint and Prettier for every package, in dependency order |
-| `pnpm lint-typecheck` | Type check every package                                               |
-| `pnpm lint-eslint`    | Run ESLint in every package                                            |
-| `pnpm lint-prettier`  | Check formatting in every package                                      |
-| `pnpm format`         | Format every package with Prettier                                     |
-| `pnpm nx graph`       | Show how the packages depend on each other                             |
+| Command                | What it does                                                           |
+| ---------------------- | ---------------------------------------------------------------------- |
+| `pnpm start <command>` | Run the `bank` tool, for example `pnpm start report CHK-001`           |
+| `pnpm lint`            | Type check, ESLint and Prettier for every package, in dependency order |
+| `pnpm lint-typecheck`  | Type check every package                                               |
+| `pnpm lint-eslint`     | Run ESLint in every package                                            |
+| `pnpm lint-prettier`   | Check formatting in every package                                      |
+| `pnpm format`          | Format every package with Prettier                                     |
+| `pnpm nx graph`        | Show how the packages depend on each other                             |
 
 ## Tools
 
