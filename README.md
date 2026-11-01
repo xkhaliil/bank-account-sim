@@ -25,18 +25,27 @@ This repository is a [pnpm workspace](https://pnpm.io/workspaces) with two packa
 
 [Nx](https://nx.dev) runs tasks across the packages. Because `lint` depends on `^lint` in [`nx.json`](nx.json), `bank` is always checked before `cli`. Each package has its own GitHub workflow in [`.github/workflows`](.github/workflows), and it only runs when files that package depends on change.
 
+### Modlets
+
+The code in `bank` is split into folders called modlets. Each folder has an `index.ts` that re-exports only what other code needs, and the `exports` map in [`features/bank/package.json`](features/bank/package.json) only lets other code reach those index files. `import Account from "bank/accounts"` works, but `bank/accounts/account.ts` does not.
+
+| Modlet                                                 | Default export      | Named exports                                 | Private to the folder                  |
+| ------------------------------------------------------ | ------------------- | --------------------------------------------- | -------------------------------------- |
+| [`bank/accounts`](features/bank/src/accounts/index.ts) | the `Account` class | `describe()`, `AccountDetails`, `Transaction` | `money()`, `TransactionKind`           |
+| [`bank/saved`](features/bank/src/saved/index.ts)       | `loadSavedBank()`   |                                               | `isSavedBank()` and the smaller guards |
+
 ### Files
 
-| File                                                                     | What it holds                                              |
-| ------------------------------------------------------------------------ | ---------------------------------------------------------- |
-| [`features/bank/src/types.ts`](features/bank/src/types.ts)               | `AccountDetails` and the `Transaction` union               |
-| [`features/bank/src/transactions.ts`](features/bank/src/transactions.ts) | `describe()`, which handles every kind of transaction      |
-| [`features/bank/src/account.ts`](features/bank/src/account.ts)           | The `Account` class with its private balance and totals    |
-| [`features/bank/src/load.ts`](features/bank/src/load.ts)                 | The type guards that check a saved bank before it is used  |
-| [`features/bank/src/index.ts`](features/bank/src/index.ts)               | What the `bank` package exports                            |
-| [`apps/cli/src/data.ts`](apps/cli/src/data.ts)                           | The accounts                                               |
-| [`apps/cli/src/saved.ts`](apps/cli/src/saved.ts)                         | The saved bank text, plus broken saves to test the guard   |
-| [`apps/cli/src/index.ts`](apps/cli/src/index.ts)                         | Loads the bank, replays its history and prints the reports |
+| File                                                                                       | What it holds                                              |
+| ------------------------------------------------------------------------------------------ | ---------------------------------------------------------- |
+| [`features/bank/src/accounts/types.ts`](features/bank/src/accounts/types.ts)               | `AccountDetails` and the `Transaction` union               |
+| [`features/bank/src/accounts/transactions.ts`](features/bank/src/accounts/transactions.ts) | `describe()`, which handles every kind of transaction      |
+| [`features/bank/src/accounts/account.ts`](features/bank/src/accounts/account.ts)           | The `Account` class with its private balance and totals    |
+| [`features/bank/src/saved/guards.ts`](features/bank/src/saved/guards.ts)                   | The type guards that check a saved bank before it is used  |
+| [`features/bank/src/saved/load.ts`](features/bank/src/saved/load.ts)                       | `loadSavedBank()`, which parses saved text and guards it   |
+| [`apps/cli/src/data.ts`](apps/cli/src/data.ts)                                             | The accounts                                               |
+| [`apps/cli/src/saved.ts`](apps/cli/src/saved.ts)                                           | The saved bank text, plus broken saves to test the guard   |
+| [`apps/cli/src/index.ts`](apps/cli/src/index.ts)                                           | Loads the bank, replays its history and prints the reports |
 
 ## Setup
 

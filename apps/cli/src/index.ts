@@ -1,4 +1,5 @@
-import { Account, describe, loadSavedBank, money, type Transaction } from "bank"
+import Account, { describe as describeTransaction, type Transaction } from "bank/accounts"
+import loadSavedBank from "bank/saved"
 
 import { savedBank, testSaves } from "./saved.ts"
 
@@ -51,15 +52,16 @@ console.log()
 console.log("Accounts")
 for (const details of bank.accounts) {
   const owners = details.owners.join(" and ")
+  const status = details.isFrozen ? " (frozen)" : ""
 
-  console.log(`  ${details.id} belongs to ${owners}, opened with ${money(details.openingBalance)}`)
+  console.log(`  ${details.id} belongs to ${owners}${status}`)
 }
 console.log()
 
 console.log("Saved history")
 for (const transaction of bank.history) {
   replay(transaction)
-  console.log(`  ${describe(transaction)}`)
+  console.log(`  ${describeTransaction(transaction)}`)
 }
 console.log()
 
