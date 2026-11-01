@@ -1,0 +1,13 @@
+{
+  "savedAt": "2026-10-29T18:00:00.000Z",
+  "accounts": [
+    { "id": "CHK-001", "owners": ["Amira"], "openingBalance": 100, "isFrozen": false },
+    { "id": "SAV-002", "owners": ["Amira", "Youssef"], "openingBalance": 500, "isFrozen": false },
+    { "id": "OLD-003", "owners": ["Sami"], "openingBalance": 20, "isFrozen": true }
+  ],
+  "history": [
+    { "kind": "deposit", "account": "CHK-001", "amount": 250 },
+    { "kind": "withdrawal", "account": "CHK-001", "amount": 40 },
+    { "kind": "transfer", "from": "CHK-001", "to": "SAV-002", "amount": 100 }
+  ]
+}
