@@ -1,27 +1,45 @@
 import { select } from "@inquirer/prompts"
-import { formatReport } from "bank/accounts"
-import { openLedger } from "bank/ledger"
+import { type AccountReport, formatReport } from "bank/accounts"
 
-import { type BankOptions } from "./options.ts"
+import { call } from "./server.ts"
 
-export default async function report(id: string | undefined, options: BankOptions): Promise<void> {
-  const ledger = await openLedger(options.bank)
+interface ReportOptions {
+  owner?: string
+}
 
-  const chosen =
-    id ??
-    (await select({
-      message: "Which account?",
-      choices: ledger.list().map((account) => ({
-        name: `${account.id} (${account.owners.join(" and ")})`,
-        value: account.id,
-      })),
-    }))
+interface Summary {
+  id: string
+  owners: string[]
+  isFrozen: boolean
+}
 
-  const account = ledger.find(chosen)
+async function ask(owner: string | undefined): Promise<string> {
+  const response =
+    owner === undefined
+      ? await call("/accounts")
+      : await call("/my-accounts", { headers: { "x-owner": owner } })
+  const accounts: Summary[] = await response.json()
 
-  if (account === undefined) {
-    throw new Error(`There is no account called "${chosen}"`)
+  if (accounts.length === 0) {
+    throw new Error(owner === undefined ? "The bank has no accounts" : `${owner} has no accounts`)
   }
 
-  console.log(formatReport(account.report()))
+  return select({
+    message: "Which account?",
+    choices: accounts.map((account) => ({
+      name: `${account.id} (${account.owners.join(" and ")})`,
+      value: account.id,
+    })),
+  })
+}
+
+export default async function report(
+  id: string | undefined,
+  options: ReportOptions,
+): Promise<void> {
+  const chosen = id ?? (await ask(options.owner))
+  const response = await call(`/accounts/${encodeURIComponent(chosen)}`)
+  const account: AccountReport = await response.json()
+
+  console.log(formatReport(account))
 }

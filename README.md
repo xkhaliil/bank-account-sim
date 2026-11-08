@@ -51,7 +51,8 @@ The code in `bank` is split into folders called modlets. Each folder has an `ind
 | [`features/bank/src/saved/demo.json`](features/bank/src/saved/demo.json)                               | The demo bank: its accounts and their saved history                    |
 | [`apps/cli/src/index.ts`](apps/cli/src/index.ts)                                                       | The Commander program: its commands, arguments and options             |
 | [`apps/cli/src/commands/report.ts`](apps/cli/src/commands/report.ts)                                   | `report`, which asks for the account when it is left out               |
-| [`apps/cli/src/commands/withdraw.ts`](apps/cli/src/commands/withdraw.ts)                               | `withdraw`, which tries a withdrawal on a copy of the bank             |
+| [`apps/cli/src/commands/withdraw.ts`](apps/cli/src/commands/withdraw.ts)                               | `withdraw`, which posts a withdrawal to the server                     |
+| [`apps/cli/src/commands/server.ts`](apps/cli/src/commands/server.ts)                                   | `call()`, the only place the CLI uses `fetch`, and its error messages  |
 | [`apps/api/src/index.ts`](apps/api/src/index.ts)                                                       | Opens the ledger, registers the route plugins and listens on port 3000 |
 | [`apps/api/src/routes/accounts/accounts.ts`](apps/api/src/routes/accounts/accounts.ts)                 | The plugin with the account routes                                     |
 | [`apps/api/src/routes/transactions/transactions.ts`](apps/api/src/routes/transactions/transactions.ts) | The plugin with the transaction route                                  |
@@ -89,22 +90,25 @@ curl -i -X POST -H "content-type: application/json"   -d '{"kind":"deposit","acc
 
 ## Usage
 
+The CLI talks to the server, so start it first with `pnpm api` in another terminal. Every reply is read as JSON and given a type. When the server replies with an error, the CLI prints the message the server sent. When the server is not running, it prints `Cannot reach the bank server at http://localhost:3000. Start it with "pnpm api".`
+
 ```text
 $ pnpm start --help
 Usage: bank [options] [command]
 
 Commands:
-  report [options] [account]             Show the balance, totals and history of an account
-  withdraw [options] <account> <amount>  Try a withdrawal and show the account afterwards (nothing is saved)
+  report [options] [account]   Show the balance, totals and history of an
+  withdraw <account> <amount>  Take money out of an account and show the account
 ```
 
-| Command                                 | What happens                                                   |
-| --------------------------------------- | -------------------------------------------------------------- |
-| `pnpm start report CHK-001`             | Prints the report for `CHK-001`                                |
-| `pnpm start report`                     | Asks which account to show, then prints its report             |
-| `pnpm start withdraw CHK-001 50`        | Takes 50 out of `CHK-001` and prints the report (not saved)    |
-| `pnpm start withdraw CHK-001 1000`      | Prints why the withdrawal is blocked and exits with code 1     |
-| `pnpm start report CHK-001 --bank nope` | Prints `There is no saved bank called "nope"` and exits with 1 |
+| Command                            | What happens                                                                       |
+| ---------------------------------- | ---------------------------------------------------------------------------------- |
+| `pnpm start report CHK-001`        | Gets `CHK-001` from the server and prints its report                               |
+| `pnpm start report`                | Gets every account, asks which one to show, then prints its report                 |
+| `pnpm start report --owner Amira`  | Only offers Amira's accounts when asking (sent as the `x-owner` header)            |
+| `pnpm start withdraw CHK-001 50`   | Posts the withdrawal to the server and prints the account afterwards               |
+| `pnpm start withdraw CHK-001 5000` | Prints the server's reason, `CHK-001 only has $210.00, ...`, and exits with 1      |
+| `pnpm start report NOPE`           | Prints the server's message, `There is no account called "NOPE"`, and exits with 1 |
 
 A value given on the command line is never asked for again. Pressing Ctrl+C at a prompt ends the program quietly with exit code 130.
 

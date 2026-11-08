@@ -12,21 +12,20 @@ function parseAmount(value: string): number {
   return amount
 }
 
-program.name("bank").description("Simulate bank accounts from a saved bank file")
+program.name("bank").description("Work with the accounts on the bank server")
 
 program
   .command("report")
   .description("Show the balance, totals and history of an account")
   .argument("[account]", "the account to show, asked for when left out")
-  .option("-b, --bank <name>", "the saved bank to load", "demo")
+  .option("-o, --owner <name>", "only offer this owner's accounts when asking")
   .action(report)
 
 program
   .command("withdraw")
-  .description("Try a withdrawal and show the account afterwards (nothing is saved)")
+  .description("Take money out of an account and show the account afterwards")
   .argument("<account>", "the account to take the money from")
   .argument("<amount>", "how much to take out", parseAmount)
-  .option("-b, --bank <name>", "the saved bank to load", "demo")
   .action(withdraw)
 
 try {

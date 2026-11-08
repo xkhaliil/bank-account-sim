@@ -1,25 +1,26 @@
-import { describe as describeTransaction, formatReport, type Transaction } from "bank/accounts"
-import { openLedger } from "bank/ledger"
+import {
+  type AccountReport,
+  describe as describeTransaction,
+  formatReport,
+  type Transaction,
+} from "bank/accounts"
 
-import { type BankOptions } from "./options.ts"
+import { call } from "./server.ts"
 
-export default async function withdraw(
-  id: string,
-  amount: number,
-  options: BankOptions,
-): Promise<void> {
-  const ledger = await openLedger(options.bank)
-  const account = ledger.find(id)
+export default async function withdraw(id: string, amount: number): Promise<void> {
+  const withdrawal: Transaction = { kind: "withdrawal", account: id, amount }
 
-  if (account === undefined) {
-    throw new Error(`There is no account called "${id}"`)
-  }
+  const recordedResponse = await call("/transactions", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(withdrawal),
+  })
+  const recorded: Transaction = await recordedResponse.json()
 
-  const transaction: Transaction = { kind: "withdrawal", account: id, amount }
+  const accountResponse = await call(`/accounts/${encodeURIComponent(id)}`)
+  const account: AccountReport = await accountResponse.json()
 
-  ledger.record(transaction)
-
-  console.log(`${describeTransaction(transaction)} (not saved)`)
+  console.log(describeTransaction(recorded))
   console.log()
-  console.log(formatReport(account.report()))
+  console.log(formatReport(account))
 }
