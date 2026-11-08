@@ -1,24 +1,13 @@
 import { select } from "@inquirer/prompts"
-import { type AccountReport, formatReport } from "bank/accounts"
-
-import { call } from "./server.ts"
+import { formatReport } from "bank/accounts"
+import { getAccount, listAccounts, listOwnerAccounts } from "bank/services"
 
 interface ReportOptions {
   owner?: string
 }
 
-interface Summary {
-  id: string
-  owners: string[]
-  isFrozen: boolean
-}
-
 async function ask(owner: string | undefined): Promise<string> {
-  const response =
-    owner === undefined
-      ? await call("/accounts")
-      : await call("/my-accounts", { headers: { "x-owner": owner } })
-  const accounts: Summary[] = await response.json()
+  const accounts = owner === undefined ? await listAccounts() : await listOwnerAccounts(owner)
 
   if (accounts.length === 0) {
     throw new Error(owner === undefined ? "The bank has no accounts" : `${owner} has no accounts`)
@@ -38,8 +27,6 @@ export default async function report(
   options: ReportOptions,
 ): Promise<void> {
   const chosen = id ?? (await ask(options.owner))
-  const response = await call(`/accounts/${encodeURIComponent(chosen)}`)
-  const account: AccountReport = await response.json()
 
-  console.log(formatReport(account))
+  console.log(formatReport(await getAccount(chosen)))
 }

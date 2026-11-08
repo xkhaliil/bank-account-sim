@@ -1,4 +1,4 @@
-import { type AccountReport } from "bank/accounts"
+import { type AccountReport, type AccountSummary } from "bank/accounts"
 import type Ledger from "bank/ledger"
 import { type FastifyPluginAsync } from "fastify"
 
@@ -6,13 +6,7 @@ interface Options {
   ledger: Ledger
 }
 
-interface Summary {
-  id: string
-  owners: string[]
-  isFrozen: boolean
-}
-
-function summarize({ id, owners, isFrozen }: AccountReport): Summary {
+function summarize({ id, owners, isFrozen }: AccountReport): AccountSummary {
   return { id, owners, isFrozen }
 }
 

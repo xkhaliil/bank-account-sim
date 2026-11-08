@@ -29,10 +29,9 @@ interface Transfer extends BaseTransaction {
 
 export type Transaction = Deposit | Withdrawal | Transfer
 
-export interface AccountReport {
-  id: string
-  owners: string[]
-  isFrozen: boolean
+export type AccountSummary = Pick<AccountDetails, "id" | "owners" | "isFrozen">
+
+export type AccountReport = Omit<AccountDetails, "openingBalance"> & {
   balance: number
   totals: Record<TransactionKind, number>
   history: Transaction[]

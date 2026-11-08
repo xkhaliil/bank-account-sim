@@ -30,32 +30,33 @@ This repository is a [pnpm workspace](https://pnpm.io/workspaces) with three pac
 
 The code in `bank` is split into folders called modlets. Each folder has an `index.ts` that re-exports only what other code needs, and the `exports` map in [`features/bank/package.json`](features/bank/package.json) only lets other code reach those index files. `import Account from "bank/accounts"` works, but `bank/accounts/account.ts` does not.
 
-| Modlet                                                 | Default export      | Named exports                                                            | Private to the folder        |
-| ------------------------------------------------------ | ------------------- | ------------------------------------------------------------------------ | ---------------------------- |
-| [`bank/accounts`](features/bank/src/accounts/index.ts) | the `Account` class | `describe()`, `formatReport()`, `accountsIn()`, the guards and the types | `money()`, `TransactionKind` |
-| [`bank/saved`](features/bank/src/saved/index.ts)       | `loadBank()`        |                                                                          | `isSavedBank()`              |
-| [`bank/ledger`](features/bank/src/ledger/index.ts)     | the `Ledger` class  | `openLedger()`                                                           |                              |
+| Modlet                                                 | Default export      | Named exports                                                                  | Private to the folder                |
+| ------------------------------------------------------ | ------------------- | ------------------------------------------------------------------------------ | ------------------------------------ |
+| [`bank/accounts`](features/bank/src/accounts/index.ts) | the `Account` class | `describe()`, `formatReport()`, `accountsIn()`, the guards and the types       | `money()`, `TransactionKind`         |
+| [`bank/saved`](features/bank/src/saved/index.ts)       | `loadBank()`        |                                                                                | `isSavedBank()`                      |
+| [`bank/ledger`](features/bank/src/ledger/index.ts)     | the `Ledger` class  | `openLedger()`                                                                 |                                      |
+| [`bank/services`](features/bank/src/services/index.ts) |                     | `listAccounts()`, `listOwnerAccounts()`, `getAccount()`, `recordTransaction()` | `request()` and the server's address |
 
 ### Files
 
-| File                                                                                                   | What it holds                                                          |
-| ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
-| [`features/bank/src/accounts/types.ts`](features/bank/src/accounts/types.ts)                           | `AccountDetails` and the `Transaction` union                           |
-| [`features/bank/src/accounts/transactions.ts`](features/bank/src/accounts/transactions.ts)             | `describe()`, which handles every kind of transaction                  |
-| [`features/bank/src/accounts/account.ts`](features/bank/src/accounts/account.ts)                       | The `Account` class with its private balance and totals                |
-| [`features/bank/src/accounts/guards.ts`](features/bank/src/accounts/guards.ts)                         | `isAccountDetails()` and `isTransaction()`                             |
-| [`features/bank/src/accounts/report.ts`](features/bank/src/accounts/report.ts)                         | `formatReport()`, which turns a report into text                       |
-| [`features/bank/src/ledger/ledger.ts`](features/bank/src/ledger/ledger.ts)                             | The `Ledger` class that holds every account and replays history        |
-| [`features/bank/src/saved/guards.ts`](features/bank/src/saved/guards.ts)                               | `isSavedBank()`, which checks a saved bank before it is used           |
-| [`features/bank/src/saved/load.ts`](features/bank/src/saved/load.ts)                                   | `loadBank()`, which reads a saved bank file and guards it              |
-| [`features/bank/src/saved/demo.json`](features/bank/src/saved/demo.json)                               | The demo bank: its accounts and their saved history                    |
-| [`apps/cli/src/index.ts`](apps/cli/src/index.ts)                                                       | The Commander program: its commands, arguments and options             |
-| [`apps/cli/src/commands/report.ts`](apps/cli/src/commands/report.ts)                                   | `report`, which asks for the account when it is left out               |
-| [`apps/cli/src/commands/withdraw.ts`](apps/cli/src/commands/withdraw.ts)                               | `withdraw`, which posts a withdrawal to the server                     |
-| [`apps/cli/src/commands/server.ts`](apps/cli/src/commands/server.ts)                                   | `call()`, the only place the CLI uses `fetch`, and its error messages  |
-| [`apps/api/src/index.ts`](apps/api/src/index.ts)                                                       | Opens the ledger, registers the route plugins and listens on port 3000 |
-| [`apps/api/src/routes/accounts/accounts.ts`](apps/api/src/routes/accounts/accounts.ts)                 | The plugin with the account routes                                     |
-| [`apps/api/src/routes/transactions/transactions.ts`](apps/api/src/routes/transactions/transactions.ts) | The plugin with the transaction route                                  |
+| File                                                                                                   | What it holds                                                                                                                               |
+| ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`features/bank/src/accounts/types.ts`](features/bank/src/accounts/types.ts)                           | `AccountDetails`, the `Transaction` union, and `AccountSummary` (`Pick`) and `AccountReport` (`Omit`), which are made from `AccountDetails` |
+| [`features/bank/src/accounts/transactions.ts`](features/bank/src/accounts/transactions.ts)             | `describe()`, which handles every kind of transaction                                                                                       |
+| [`features/bank/src/accounts/account.ts`](features/bank/src/accounts/account.ts)                       | The `Account` class with its private balance and totals                                                                                     |
+| [`features/bank/src/accounts/guards.ts`](features/bank/src/accounts/guards.ts)                         | `isAccountDetails()` and `isTransaction()`                                                                                                  |
+| [`features/bank/src/accounts/report.ts`](features/bank/src/accounts/report.ts)                         | `formatReport()`, which turns a report into text                                                                                            |
+| [`features/bank/src/ledger/ledger.ts`](features/bank/src/ledger/ledger.ts)                             | The `Ledger` class that holds every account and replays history                                                                             |
+| [`features/bank/src/saved/guards.ts`](features/bank/src/saved/guards.ts)                               | `isSavedBank()`, which checks a saved bank before it is used                                                                                |
+| [`features/bank/src/saved/load.ts`](features/bank/src/saved/load.ts)                                   | `loadBank()`, which reads a saved bank file and guards it                                                                                   |
+| [`features/bank/src/saved/demo.json`](features/bank/src/saved/demo.json)                               | The demo bank: its accounts and their saved history                                                                                         |
+| [`apps/cli/src/index.ts`](apps/cli/src/index.ts)                                                       | The Commander program: its commands, arguments and options                                                                                  |
+| [`apps/cli/src/commands/report.ts`](apps/cli/src/commands/report.ts)                                   | `report`, which asks for the account when it is left out                                                                                    |
+| [`apps/cli/src/commands/withdraw.ts`](apps/cli/src/commands/withdraw.ts)                               | `withdraw`, which posts a withdrawal to the server                                                                                          |
+| [`features/bank/src/services/services.ts`](features/bank/src/services/services.ts)                     | The service functions, and the private generic `request()` that makes every request to the server                                           |
+| [`apps/api/src/index.ts`](apps/api/src/index.ts)                                                       | Opens the ledger, registers the route plugins and listens on port 3000                                                                      |
+| [`apps/api/src/routes/accounts/accounts.ts`](apps/api/src/routes/accounts/accounts.ts)                 | The plugin with the account routes                                                                                                          |
+| [`apps/api/src/routes/transactions/transactions.ts`](apps/api/src/routes/transactions/transactions.ts) | The plugin with the transaction route                                                                                                       |
 
 ### Loading a saved bank
 
@@ -90,15 +91,15 @@ curl -i -X POST -H "content-type: application/json"   -d '{"kind":"deposit","acc
 
 ## Usage
 
-The CLI talks to the server, so start it first with `pnpm api` in another terminal. Every reply is read as JSON and given a type. When the server replies with an error, the CLI prints the message the server sent. When the server is not running, it prints `Cannot reach the bank server at http://localhost:3000. Start it with "pnpm api".`
+The CLI talks to the server through the service functions in [`bank/services`](features/bank/src/services/services.ts), so start the server first with `pnpm api` in another terminal. One private generic function, `request<Reply extends object = object>()`, makes every request: each service names the type of its reply, and no other file calls `fetch`. When the server replies with an error, the CLI prints the message the server sent. When the server is not running, it prints `Cannot reach the bank server at http://localhost:3000. Start it with "pnpm api".`
 
 ```text
 $ pnpm start --help
 Usage: bank [options] [command]
 
 Commands:
-  report [options] [account]   Show the balance, totals and history of an
-  withdraw <account> <amount>  Take money out of an account and show the account
+  report [options] [account]   Show the balance, totals and history of an account
+  withdraw <account> <amount>  Take money out of an account and show the account afterwards
 ```
 
 | Command                            | What happens                                                                       |
