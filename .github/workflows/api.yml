@@ -1,0 +1,28 @@
+name: api
+
+on:
+  push:
+    paths:
+      - "apps/api/**"
+      - "features/bank/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "nx.json"
+      - "tsconfig.base.json"
+      - ".prettierrc"
+      - ".github/workflows/api.yml"
+      - ".github/actions/**"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+      - run: pnpm nx run api:lint
+      - run: pnpm --filter api start &
+      - run: curl --silent --fail --retry 10 --retry-connrefused localhost:3000/accounts
+      - run: test "$(curl -s -o /dev/null -w '%{http_code}' localhost:3000/accounts/NOPE)" = 404
+      - run: test "$(curl -s -o /dev/null -w '%{http_code}' localhost:3000/my-accounts)" = 401
+      - run: test "$(curl -s -o /dev/null -w '%{http_code}' -X POST localhost:3000/transactions)" = 400

@@ -12,6 +12,7 @@
   },
   "scripts": {
     "start": "pnpm --filter cli start",
+    "api": "pnpm --filter api dev",
     "lint": "nx run-many -t lint",
     "lint-typecheck": "nx run-many -t lint-typecheck",
     "lint-eslint": "nx run-many -t lint-eslint",

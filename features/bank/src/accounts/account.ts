@@ -1,5 +1,10 @@
-import { describe, money } from "./transactions.ts"
-import { type AccountDetails, type Transaction, type TransactionKind } from "./types.ts"
+import { money } from "./transactions.ts"
+import {
+  type AccountDetails,
+  type AccountReport,
+  type Transaction,
+  type TransactionKind,
+} from "./types.ts"
 
 export default class Account {
   public readonly id: string
@@ -52,18 +57,15 @@ export default class Account {
     to.remember(transfer)
   }
 
-  public report(): string {
-    const status = this.frozen ? ", frozen" : ""
-    const lines = [
-      `${this.id} (${this.owners.join(" and ")}${status})`,
-      `  Balance:     ${money(this.balance)}`,
-      `  Deposited:   ${money(this.totals.deposit)}`,
-      `  Withdrawn:   ${money(this.totals.withdrawal)}`,
-      `  Transferred: ${money(this.totals.transfer)}`,
-      ...this.history.map((transaction) => `  - ${describe(transaction)}`),
-    ]
-
-    return lines.join("\n")
+  public report(): AccountReport {
+    return {
+      id: this.id,
+      owners: [...this.owners],
+      isFrozen: this.frozen,
+      balance: this.balance,
+      totals: { ...this.totals },
+      history: [...this.history],
+    }
   }
 
   private check(amount: number): void {

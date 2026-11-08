@@ -19,3 +19,15 @@ export function describe(transaction: Transaction): string {
 
   throw new Error("Unknown kind.")
 }
+
+export function accountsIn(transaction: Transaction): string[] {
+  if (transaction.kind === "deposit" || transaction.kind === "withdrawal") {
+    return [transaction.account]
+  }
+
+  if (transaction.kind === "transfer") {
+    return [transaction.from, transaction.to]
+  }
+
+  throw new Error("Unknown kind.")
+}

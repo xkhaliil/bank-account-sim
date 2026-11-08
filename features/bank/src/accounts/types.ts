@@ -28,3 +28,12 @@ interface Transfer extends BaseTransaction {
 }
 
 export type Transaction = Deposit | Withdrawal | Transfer
+
+export interface AccountReport {
+  id: string
+  owners: string[]
+  isFrozen: boolean
+  balance: number
+  totals: Record<TransactionKind, number>
+  history: Transaction[]
+}

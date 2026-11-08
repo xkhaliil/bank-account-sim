@@ -1,0 +1,31 @@
+{
+  "name": "api",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Fastify server that serves the bank accounts and records transactions",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "nodemon src/index.ts",
+    "start": "node .",
+    "lint": "pnpm run \"/^lint-.*/\"",
+    "lint-typecheck": "tsc",
+    "lint-eslint": "eslint .",
+    "lint-prettier": "prettier --check .",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "bank": "workspace:*",
+    "fastify": "^5.12.8"
+  },
+  "devDependencies": {
+    "@eslint/js": "catalog:",
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "eslint-config-prettier": "catalog:",
+    "nodemon": "^3.1.14",
+    "prettier": "catalog:",
+    "typescript": "catalog:",
+    "typescript-eslint": "catalog:"
+  }
+}

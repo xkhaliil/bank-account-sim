@@ -1,0 +1,7 @@
+{
+  "watch": ["src", "../../features/bank/src"],
+  "ext": "ts,json",
+  "execMap": {
+    "ts": "node"
+  }
+}
