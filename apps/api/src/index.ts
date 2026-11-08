@@ -1,3 +1,4 @@
+import cors from "@fastify/cors"
 import { openLedger } from "bank/ledger"
 import Fastify from "fastify"
 
@@ -10,6 +11,7 @@ const fastify = Fastify()
 try {
   const ledger = await openLedger("demo")
 
+  await fastify.register(cors)
   await fastify.register(accounts, { ledger })
   await fastify.register(transactions, { ledger })
   await fastify.listen({ port })

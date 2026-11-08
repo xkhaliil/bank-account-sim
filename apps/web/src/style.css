@@ -1,0 +1,113 @@
+:root {
+  --background: #f6f7f9;
+  --surface: #ffffff;
+  --text: #1c1f24;
+  --muted: #5d6470;
+  --border: #d9dde3;
+  --accent: #1f6feb;
+
+  color-scheme: light dark;
+  font-family: system-ui, sans-serif;
+  line-height: 1.5;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #14161a;
+    --surface: #1d2026;
+    --text: #e8eaed;
+    --muted: #a0a7b2;
+    --border: #343941;
+    --accent: #6ea8fe;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--text);
+}
+
+main {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+h1 {
+  margin: 0 0 0.25rem;
+}
+
+p {
+  color: var(--muted);
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.accounts {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0;
+  list-style: none;
+}
+
+.accounts button {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+}
+
+.accounts button:hover,
+.accounts button:focus-visible {
+  border-color: var(--accent);
+}
+
+.back {
+  margin-bottom: 1rem;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--accent);
+}
+
+.balance {
+  margin: 1rem 0;
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+dl {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin: 0;
+}
+
+dl div {
+  padding: 0.5rem 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+}
+
+dt {
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+ol {
+  padding-left: 1.25rem;
+}

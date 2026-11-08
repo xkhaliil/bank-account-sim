@@ -14,28 +14,29 @@ The idea is to keep the balance private inside an `Account` class so it can only
 
 ## Workspace
 
-This repository is a [pnpm workspace](https://pnpm.io/workspaces) with three packages:
+This repository is a [pnpm workspace](https://pnpm.io/workspaces) with four packages:
 
-| Package | Folder                           | What it holds                                                        |
-| ------- | -------------------------------- | -------------------------------------------------------------------- |
-| `bank`  | [`features/bank`](features/bank) | Account types, transactions, the `Account` class and the guards      |
-| `cli`   | [`apps/cli`](apps/cli)           | The `bank` command-line tool, built with Commander and Inquirer      |
-| `api`   | [`apps/api`](apps/api)           | The Fastify server that serves the accounts and records transactions |
+| Package | Folder                           | What it holds                                                             |
+| ------- | -------------------------------- | ------------------------------------------------------------------------- |
+| `bank`  | [`features/bank`](features/bank) | Account types, transactions, the `Account` class and the guards           |
+| `cli`   | [`apps/cli`](apps/cli)           | The `bank` command-line tool, built with Commander and Inquirer           |
+| `api`   | [`apps/api`](apps/api)           | The Fastify server that serves the accounts and records transactions      |
+| `web`   | [`apps/web`](apps/web)           | The browser page that lists the accounts and shows one when it is clicked |
 
-`cli` and `api` depend on `bank` through `"bank": "workspace:*"`, so pnpm links the local package instead of downloading it. The shared tool versions (TypeScript, ESLint, Prettier) are pinned once in the `catalog` of [`pnpm-workspace.yaml`](pnpm-workspace.yaml) and read by every package with `"catalog:"`.
+`cli`, `api` and `web` depend on `bank` through `"bank": "workspace:*"`, so pnpm links the local package instead of downloading it. The shared tool versions (TypeScript, ESLint, Prettier) are pinned once in the `catalog` of [`pnpm-workspace.yaml`](pnpm-workspace.yaml) and read by every package with `"catalog:"`.
 
-[Nx](https://nx.dev) runs tasks across the packages. Because `lint` depends on `^lint` in [`nx.json`](nx.json), `bank` is always checked before `cli` and `api`. Each package has its own GitHub workflow in [`.github/workflows`](.github/workflows), and it only runs when files that package depends on change.
+[Nx](https://nx.dev) runs tasks across the packages. Because `lint` depends on `^lint` in [`nx.json`](nx.json), `bank` is always checked before the apps. Each package has its own GitHub workflow in [`.github/workflows`](.github/workflows), and it only runs when files that package depends on change.
 
 ### Modlets
 
 The code in `bank` is split into folders called modlets. Each folder has an `index.ts` that re-exports only what other code needs, and the `exports` map in [`features/bank/package.json`](features/bank/package.json) only lets other code reach those index files. `import Account from "bank/accounts"` works, but `bank/accounts/account.ts` does not.
 
-| Modlet                                                 | Default export      | Named exports                                                                  | Private to the folder                |
-| ------------------------------------------------------ | ------------------- | ------------------------------------------------------------------------------ | ------------------------------------ |
-| [`bank/accounts`](features/bank/src/accounts/index.ts) | the `Account` class | `describe()`, `formatReport()`, `accountsIn()`, the guards and the types       | `money()`, `TransactionKind`         |
-| [`bank/saved`](features/bank/src/saved/index.ts)       | `loadBank()`        |                                                                                | `isSavedBank()`                      |
-| [`bank/ledger`](features/bank/src/ledger/index.ts)     | the `Ledger` class  | `openLedger()`                                                                 |                                      |
-| [`bank/services`](features/bank/src/services/index.ts) |                     | `listAccounts()`, `listOwnerAccounts()`, `getAccount()`, `recordTransaction()` | `request()` and the server's address |
+| Modlet                                                 | Default export      | Named exports                                                                       | Private to the folder                |
+| ------------------------------------------------------ | ------------------- | ----------------------------------------------------------------------------------- | ------------------------------------ |
+| [`bank/accounts`](features/bank/src/accounts/index.ts) | the `Account` class | `describe()`, `money()`, `formatReport()`, `accountsIn()`, the guards and the types | `TransactionKind`                    |
+| [`bank/saved`](features/bank/src/saved/index.ts)       | `loadBank()`        |                                                                                     | `isSavedBank()`                      |
+| [`bank/ledger`](features/bank/src/ledger/index.ts)     | the `Ledger` class  | `openLedger()`                                                                      |                                      |
+| [`bank/services`](features/bank/src/services/index.ts) |                     | `listAccounts()`, `listOwnerAccounts()`, `getAccount()`, `recordTransaction()`      | `request()` and the server's address |
 
 ### Files
 
@@ -54,6 +55,9 @@ The code in `bank` is split into folders called modlets. Each folder has an `ind
 | [`apps/cli/src/commands/report.ts`](apps/cli/src/commands/report.ts)                                   | `report`, which asks for the account when it is left out                                                                                    |
 | [`apps/cli/src/commands/withdraw.ts`](apps/cli/src/commands/withdraw.ts)                               | `withdraw`, which posts a withdrawal to the server                                                                                          |
 | [`features/bank/src/services/services.ts`](features/bank/src/services/services.ts)                     | The service functions, and the private generic `request()` that makes every request to the server                                           |
+| [`apps/web/src/main.ts`](apps/web/src/main.ts)                                                         | Finds `#app` with a selector, then shows the list and the chosen account in turn                                                            |
+| [`apps/web/src/pick/pick.ts`](apps/web/src/pick/pick.ts)                                               | Builds the account list and waits for a click on it                                                                                         |
+| [`apps/web/src/account/account.ts`](apps/web/src/account/account.ts)                                   | Shows one account's balance, totals and history, with a Back button                                                                         |
 | [`apps/api/src/index.ts`](apps/api/src/index.ts)                                                       | Opens the ledger, registers the route plugins and listens on port 3000                                                                      |
 | [`apps/api/src/routes/accounts/accounts.ts`](apps/api/src/routes/accounts/accounts.ts)                 | The plugin with the account routes                                                                                                          |
 | [`apps/api/src/routes/transactions/transactions.ts`](apps/api/src/routes/transactions/transactions.ts) | The plugin with the transaction route                                                                                                       |
@@ -88,6 +92,15 @@ curl -i -H "x-owner: Amira" localhost:3000/my-accounts
 curl -i -X POST localhost:3000/transactions               # 400
 curl -i -X POST -H "content-type: application/json"   -d '{"kind":"deposit","account":"CHK-001","amount":50}' localhost:3000/transactions   # 201
 ```
+
+## Page
+
+`pnpm web` starts the page on http://localhost:5173 with Vite. Start the server too with `pnpm api`, since the page gets the accounts through the same service functions as the CLI (the server allows it with `@fastify/cors`).
+
+- The page finds the element that holds it with `document.querySelector("#app")`. If it is missing, the script writes a message in the page and stops.
+- Every element is made with `createElement` and its text set with `textContent`. Nothing sets `innerHTML`.
+- The list has one click listener. It finds the clicked account with `event.target` and `closest("button")`, and removes itself once an account is picked. The Back button's listener removes itself too.
+- When the server cannot be reached, the page shows `Cannot reach the bank server at http://localhost:3000. Start it with "pnpm api".`
 
 ## Usage
 
@@ -129,6 +142,7 @@ Run these from the root of the repository.
 | ---------------------- | ---------------------------------------------------------------------- |
 | `pnpm start <command>` | Run the `bank` tool, for example `pnpm start report CHK-001`           |
 | `pnpm api`             | Start the server with nodemon, which restarts it when a file is saved  |
+| `pnpm web`             | Start the page with Vite on http://localhost:5173                      |
 | `pnpm lint`            | Type check, ESLint and Prettier for every package, in dependency order |
 | `pnpm lint-typecheck`  | Type check every package                                               |
 | `pnpm lint-eslint`     | Run ESLint in every package                                            |
@@ -143,5 +157,5 @@ Run these from the root of the repository.
 - **TypeScript** with `strict` mode on
 - **ESLint** with the recommended JS and TypeScript rules
 - **Prettier** for formatting (no semicolons, double quotes, 100 character lines)
-- **Fastify** for the server, with **nodemon** to restart it on save
+- **Fastify** for the server, with **nodemon** to restart it on save, and **Vite** for the page
 - **GitHub Actions** with path filters, so each workflow only runs when its files change

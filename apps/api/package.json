@@ -15,6 +15,7 @@
     "format": "prettier --write ."
   },
   "dependencies": {
+    "@fastify/cors": "^11.4.1",
     "bank": "workspace:*",
     "fastify": "^5.12.8"
   },
