@@ -1,6 +1,7 @@
 name: bank
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - "features/bank/**"
