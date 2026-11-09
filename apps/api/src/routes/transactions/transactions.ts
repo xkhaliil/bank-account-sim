@@ -1,5 +1,6 @@
-import { accountsIn, isTransaction } from "bank/accounts"
+import { accountsIn, isTransaction, type Transaction } from "bank/accounts"
 import type Ledger from "bank/ledger"
+import { type ErrorReply } from "bank/replies"
 import { type FastifyPluginAsync } from "fastify"
 
 interface Options {
@@ -7,7 +8,10 @@ interface Options {
 }
 
 const transactions: FastifyPluginAsync<Options> = async (fastify, { ledger }) => {
-  fastify.post<{ Body: unknown }>("/transactions", async (request, reply) => {
+  fastify.post<{
+    Body: unknown
+    Reply: { 201: Transaction; 400: ErrorReply; 409: ErrorReply }
+  }>("/transactions", async (request, reply) => {
     const transaction = request.body
 
     if (!isTransaction(transaction)) {

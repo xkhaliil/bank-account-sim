@@ -2,7 +2,7 @@
   "name": "bank-account-sim",
   "version": "0.1.0",
   "private": true,
-  "description": "A simple bank account simulator written in TypeScript",
+  "description": "A bank account simulator: a server, a command-line tool and a web page that share one TypeScript library",
   "devEngines": {
     "packageManager": {
       "name": "pnpm",

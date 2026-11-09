@@ -2,7 +2,7 @@
   "name": "bank",
   "version": "0.1.0",
   "private": true,
-  "description": "Accounts, transactions and saved bank loading",
+  "description": "Shared bank code: accounts, guards, the saved bank file, the ledger and the service functions",
   "type": "module",
   "exports": {
     "./*": "./src/*/index.ts"
